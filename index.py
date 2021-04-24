@@ -1,6 +1,6 @@
 from flask import Flask
 
-from fastText import ft;
+import fasttext;
 
 app = Flask(__name__)
 
