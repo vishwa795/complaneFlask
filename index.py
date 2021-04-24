@@ -1,24 +1,30 @@
 from flask import Flask
+
+from fastText import ft;
+
 app = Flask(__name__)
 
 @app.route('/fastText')
 def fastText():
-    #add code for fastText classification
+    return "This is fastText"
 
 
 
 @app.route('/keyBert')
 def keyBert():
-    #add code for keyBert
+    return "This is keyBert"
 
 
 
 @app.route('/postitionRank')
 def positionRank():
-    #add code for fastText positionRank
+    return "This is positionRank"
 
 
 
 @app.route('/annoy')
 def annoy():
-    #add code for fastText classification
+    return "This is Annoy"
+
+if __name__ == "__main__":
+    app.run(debug=True)
