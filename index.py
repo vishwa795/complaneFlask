@@ -6,6 +6,7 @@ app = Flask(__name__)
 
 @app.route('/fastText')
 def fastText():
+    #use fastText here
     return "This is fastText"
 
 
