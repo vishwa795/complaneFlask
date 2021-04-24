@@ -1,13 +1,16 @@
 from flask import Flask
 
-import fasttext;
+import fasttext
 
 app = Flask(__name__)
+
+x = 4
+y =3+x
 
 @app.route('/fastText')
 def fastText():
     #use fastText here
-    return "This is fastText"
+    return "This is fastText "+str(y)
 
 
 
