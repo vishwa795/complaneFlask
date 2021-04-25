@@ -13,3 +13,8 @@ pip install -r requirements.txt
 ```
 set git remote heroku to https://git.heroku.com/complane-flask.git
 ```
+
+- push into heroku git
+```
+git push heroku HEAD
+```
