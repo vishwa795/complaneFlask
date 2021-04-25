@@ -1,11 +1,14 @@
-from flask import Flask
+from flask import Flask, request
 
 import fasttext
+from keybert import KeyBERT
+import json
 
 app = Flask(__name__)
 
 x = 4
 y =3+x
+keyBERT_model = KeyBERT('distilbert-base-nli-mean-tokens')
 
 @app.route('/fastText')
 def fastText():
@@ -14,9 +17,12 @@ def fastText():
 
 
 
-@app.route('/keyBert')
+@app.route('/keyBert', methods = ['POST'])
 def keyBert():
-    return "This is keyBert"
+    if request.method == 'POST':
+        doc = request.form['doc']
+        keywords = keyBERT_model.extract_keywords(doc)
+        return json.dumps(keywords)
 
 
 
