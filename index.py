@@ -40,7 +40,8 @@ treeBuild()
 def getKeywordList(KeywordsObject):
     keywordsList = []
     for keyword_map in KeywordsObject:
-        keywordsList.append(keyword_map.keyword)
+        print(keyword_map)
+        keywordsList.append(keyword_map["keyword"])
     return keywordsList
 
 
@@ -71,9 +72,9 @@ def annoyTrain():
 
         # [
         #     {
-        #       "keyword": "tax",
-        #       "department": "Central_Board_of_Direct_Taxes_(Income_Tax)",
-        #       "index": "10"
+        #     "keyword": "tax",
+        #     "department": "Central_Board_of_Direct_Taxes_(Income_Tax)",
+        #     "index": 10
         #     },
         #     {
         #         "keyword": "refunds",
@@ -83,40 +84,40 @@ def annoyTrain():
         # ]
         
 
-        keyword_set_array = request.form['keyword_set_array']
-
+        data = json.dumps(request.json)
+        keyword_set_array = json.loads(data)
 
         keyword_list = getKeywordList(keyword_set_array)
 
-    embedding_bert=BERT_model.encode(keyword_list)
+        embedding_bert=BERT_model.encode(keyword_list)
 
-    treeUnbuild()
+        treeUnbuild()
 
-    for i in range(len(keyword_set_array)):
-        if(keyword_set_array[i].department=="Department_of_Telecommunications"):
-            tree_Telecom.add_item(int(keyword_set_array[i].index), embedding_bert[i])
+        for i in range(len(keyword_set_array)):
+            if(keyword_set_array[i]["department"]=="Department_of_Telecommunications"):
+                tree_Telecom.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
 
-        elif(keyword_set_array[i].department=="Central_Board_of_Direct_Taxes_(Income_Tax)"):
-            tree_IncomeTax.add_item(int(keyword_set_array[i].index), embedding_bert[i])
+            elif(keyword_set_array[i]["department"]=="Central_Board_of_Direct_Taxes_(Income_Tax)"):
+                tree_IncomeTax.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
 
-        elif(keyword_set_array[i].department=="Ministry_of_labour_and_Employment"):
-            tree_Labour.add_item(int(keyword_set_array[i].index), embedding_bert[i])
+            elif(keyword_set_array[i]["department"]=="Ministry_of_labour_and_Employment"):
+                tree_Labour.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
 
-        elif(keyword_set_array[i].department=="Department_of_Financial_Services_(Banking_Division)"):
-            tree_Finance.add_item(int(keyword_set_array[i].index), embedding_bert[i])
+            elif(keyword_set_array[i]["department"]=="Department_of_Financial_Services_(Banking_Division)"):
+                tree_Finance.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
 
-        elif(keyword_set_array[i].department=="Department_of_Ex_Servicemen_Welfare"):
-            tree_Welfare.add_item(int(keyword_set_array[i].index), embedding_bert[i])
+            elif(keyword_set_array[i]["department"]=="Department_of_Ex_Servicemen_Welfare"):
+                tree_Welfare.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
 
-        elif(keyword_set_array[i].department=="Central_Board_of_Indirect_Taxes_and_Customs"):
-            tree_IndirectTax.add_item(int(keyword_set_array[i].index), embedding_bert[i])
-    
-    
-    treeBuild(20)
-    success = {
-        "success"
-    }
-    return json.dumps(success)
+            elif(keyword_set_array[i]["department"]=="Central_Board_of_Indirect_Taxes_and_Customs"):
+                tree_IndirectTax.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+        
+        
+        treeBuild(20)
+        success = {
+            "status":"success"
+        }
+        return json.dumps(success)
 
 
 @app.route('/annoy/findIdentical', methods = ['POST'])
@@ -124,27 +125,27 @@ def annoyFindIdentical():
     if request.method == 'POST':
         # {
         #     "keyword": "tax"
-        #     "department": "TAX"
+        #     "department": "Central_Board_of_Direct_Taxes_(Income_Tax)"
         # }
-        keyword_map = request.form['keyword_map']
-        keytosearch = BERT_model.encode([keyword_map.keyword])
+        keyword_map = request.json
+        keytosearch = BERT_model.encode([keyword_map["keyword"]])
         relatedKeywordIndexes = []
-        if(keyword_map.department=="Department_of_Telecommunications"):
+        if(keyword_map["department"]=="Department_of_Telecommunications"):
            relatedKeywordIndexes = tree_Telecom.get_nns_by_vector(keytosearch[0],10)
 
-        elif(keyword_map.department=="Central_Board_of_Direct_Taxes_(Income_Tax)"):
+        elif(keyword_map["department"]=="Central_Board_of_Direct_Taxes_(Income_Tax)"):
             relatedKeywordIndexes = tree_IncomeTax.get_nns_by_vector(keytosearch[0],10)
 
-        elif(keyword_map.department=="Ministry_of_labour_and_Employment"):
+        elif(keyword_map["department"]=="Ministry_of_labour_and_Employment"):
             relatedKeywordIndexes = tree_Labour.get_nns_by_vector(keytosearch[0],10)
 
-        elif(keyword_map.department=="Department_of_Financial_Services_(Banking_Division)"):
+        elif(keyword_map["department"]=="Department_of_Financial_Services_(Banking_Division)"):
             relatedKeywordIndexes = tree_Finance.get_nns_by_vector(keytosearch[0],10)
 
-        elif(keyword_map.department=="Department_of_Ex_Servicemen_Welfare"):
+        elif(keyword_map["department"]=="Department_of_Ex_Servicemen_Welfare"):
             relatedKeywordIndexes = tree_Welfare.get_nns_by_vector(keytosearch[0],10)
             
-        elif(keyword_map.department=="Central_Board_of_Indirect_Taxes_and_Customs"):
+        elif(keyword_map["department"]=="Central_Board_of_Indirect_Taxes_and_Customs"):
             relatedKeywordIndexes = tree_IndirectTax.get_nns_by_vector(keytosearch[0],10)
         
         return json.dumps(relatedKeywordIndexes)
