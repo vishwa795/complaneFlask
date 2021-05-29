@@ -5,6 +5,8 @@ from keybert import KeyBERT
 from annoy import AnnoyIndex
 from sentence_transformers import SentenceTransformer
 import json
+import fasttext
+
 
 app = Flask(__name__)
 
@@ -18,6 +20,8 @@ tree_Labour = AnnoyIndex(embed_dim, "angular")    # Ministry_of_labour_and_Emplo
 tree_Finance = AnnoyIndex(embed_dim, "angular")   # Department_of_Financial_Services_(Banking_Division)
 tree_Welfare = AnnoyIndex(embed_dim, "angular")   # Department_of_Ex_Servicemen_Welfare
 tree_IndirectTax = AnnoyIndex(embed_dim, "angular")       # Central_Board_of_Indirect_Taxes_and_Customs
+
+classification_model = fasttext.load_model('fasttext_With_Others.bin')
 
 def treeBuild(n = 20):
     tree_Telecom.build(n)
@@ -47,7 +51,16 @@ def getKeywordList(KeywordsObject):
 
 @app.route('/fastText', methods = ['POST'])
 def fastText():
-    #use fastText here
+    if(request.method == 'POST'):
+        print(request.json)
+        data = request.json
+        complaint = data["complaint"]
+        target = classification_model.predict(complaint)
+        target_dept = target[0][0]
+        confidence_score = target[1][0]
+        data["department_predicted"] = target_dept
+        data["predicted_confidence"] = str(confidence_score)
+        return json.dumps(data)
     return "This is fastText "
 
 
