@@ -1,12 +1,17 @@
 from flask import Flask, request
 
 import fasttext
+from flask.wrappers import Response
 from keybert import KeyBERT
 from annoy import AnnoyIndex
 from sentence_transformers import SentenceTransformer
 import json
 import fasttext
-
+import pke
+import uuid
+import string
+from nltk.corpus import stopwords
+import os
 
 app = Flask(__name__)
 
@@ -21,7 +26,7 @@ tree_Finance = AnnoyIndex(embed_dim, "angular")   # Department_of_Financial_Serv
 tree_Welfare = AnnoyIndex(embed_dim, "angular")   # Department_of_Ex_Servicemen_Welfare
 tree_IndirectTax = AnnoyIndex(embed_dim, "angular")       # Central_Board_of_Indirect_Taxes_and_Customs
 
-classification_model = fasttext.load_model('fasttext_With_Others.bin')
+classification_model = fasttext.load_model('fasttext_Without_Others.bin')
 
 def treeBuild(n = 20):
     tree_Telecom.build(n)
@@ -60,7 +65,11 @@ def fastText():
         confidence_score = target[1][0]
         data["department_predicted"] = target_dept
         data["predicted_confidence"] = str(confidence_score)
-        return json.dumps(data)
+        response = Response()
+        response.status_code = 200;
+        response.content_type = "application/json"
+        response.data = json.dumps(data)
+        return response
     return "This is fastText "
 
 
@@ -76,7 +85,46 @@ def keyBert():
 
 @app.route('/multipartiteRank', methods = ['POST'])
 def multipartiteRank():
-    return "This is multipartiteRank"
+    if(request.method == 'POST'):
+        data = request.json
+        complaint = data["complaint"]
+        filename =str(uuid.uuid1())+".txt"
+        f = open(filename,"w")
+        f.write(complaint)
+        f.close()
+
+        # 1. create a MultipartiteRank extractor.
+        extractor = pke.unsupervised.MultipartiteRank()
+
+        # 2. load the content of the document.
+        extractor.load_document(input=filename)
+
+        # 3. select the longest sequences of nouns and adjectives, that do
+        #    not contain punctuation marks or stopwords as candidates.
+        pos = {'NOUN', 'PROPN', 'ADJ'}
+        stoplist = list(string.punctuation)
+        stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-','sir','please']
+        stoplist += stopwords.words('english')
+        extractor.candidate_selection(pos=pos, stoplist=stoplist)
+
+        # 4. build the Multipartite graph and rank candidates using random walk,
+        #    alpha controls the weight adjustment mechanism, see TopicRank for
+        #    threshold/method parameters.
+        extractor.candidate_weighting(alpha=1.1,
+                                    threshold=0.74,
+                                    method='average')
+
+        # 5. get the 10-highest scored candidates as keyphrases
+        keyphrases = extractor.get_n_best(n=5)
+        print(keyphrases)
+        data['keywords'] = keyphrases
+
+        response = Response()
+        response.content_type = "application/json"
+        response.data = json.dumps(data)
+        os.remove(filename)
+        return response
+    return "This is multi-partite"
 
 
 @app.route('/annoy/train', methods = ['POST'])
