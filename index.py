@@ -66,7 +66,6 @@ def treeUnload():
     tree_IndirectTax.unload()
 
 def saveAnnoyTrees():
-    os.remove('models/annoy/tree_Telecom.ann')
     tree_Telecom.save('models/annoy/tree_Telecom.ann')
     tree_IncomeTax.save('models/annoy/tree_IncomeTax.ann')
     tree_Labour.save('models/annoy/tree_Labour.ann')
@@ -219,14 +218,7 @@ def annoyTrain():
         
         
         treeBuild(20)
-
-        
-        tree_Telecom.save('models/annoy/tree_Telecom.ann')
-        tree_IncomeTax.save('models/annoy/tree_IncomeTax.ann')
-        tree_Labour.save('models/annoy/tree_Labour.ann')
-        tree_Finance.save('models/annoy/tree_Finance.ann')
-        tree_Welfare.save('models/annoy/tree_Welfare.ann')
-        tree_IndirectTax.save('models/annoy/tree_IndirectTax.ann')
+        saveAnnoyTrees()
         success = {
             "status":"success"
         }
@@ -295,15 +287,7 @@ def annoyRetrain():
         tree_IndirectTax_new.build(20)
 
         global tree_Finance,tree_IncomeTax,tree_Labour,tree_Telecom,tree_Welfare,tree_IndirectTax
-        tree_Telecom.unload()
-        tree_IncomeTax.unload()
-        tree_Labour.unload()
-        tree_Finance.unload()
-        tree_Welfare.unload()
-        tree_IndirectTax.unload()
-
-        tree_Telecom = 0
-
+        treeUnload()
 
         tree_Finance = tree_Finance_new
         tree_IncomeTax = tree_IncomeTax_new
@@ -312,7 +296,14 @@ def annoyRetrain():
         tree_Welfare = tree_Welfare_new
         tree_IndirectTax = tree_Finance_new
 
-        
+        tree_Telecom_new.save('models/annoy/tree_Telecom.ann')
+        tree_IncomeTax_new.save('models/annoy/tree_IncomeTax.ann')
+        tree_Labour_new.save('models/annoy/tree_Labour.ann')
+        tree_Finance_new.save('models/annoy/tree_Finance.ann')
+        tree_Welfare_new.save('models/annoy/tree_Welfare.ann')
+        tree_IndirectTax_new.save('models/annoy/tree_IndirectTax.ann')
+
+
         success = {
             "status":"success"
         }
