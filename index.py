@@ -7,6 +7,7 @@ from annoy import AnnoyIndex
 from sentence_transformers import SentenceTransformer
 import json
 import fasttext
+from torch.functional import tensordot
 import pke
 import uuid
 import string
@@ -19,14 +20,26 @@ keyBERT_model = KeyBERT('distilbert-base-nli-mean-tokens')
 BERT_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
 embed_dim = 768
-tree_Telecom = AnnoyIndex(embed_dim, "angular")   # Department_of_Telecommunications
-tree_IncomeTax = AnnoyIndex(embed_dim, "angular") # Central_Board_of_Direct_Taxes_(Income_Tax)
-tree_Labour = AnnoyIndex(embed_dim, "angular")    # Ministry_of_labour_and_Employment
-tree_Finance = AnnoyIndex(embed_dim, "angular")   # Department_of_Financial_Services_(Banking_Division)
-tree_Welfare = AnnoyIndex(embed_dim, "angular")   # Department_of_Ex_Servicemen_Welfare
-tree_IndirectTax = AnnoyIndex(embed_dim, "angular")       # Central_Board_of_Indirect_Taxes_and_Customs
+tree_Telecom = AnnoyIndex(embed_dim,'angular')
+tree_Telecom.load('models/annoy/tree_Telecom.ann') # Department_of_Telecommunications
 
-classification_model = fasttext.load_model('fasttext_Without_Others.bin')
+tree_IncomeTax = AnnoyIndex(embed_dim,'angular')# Central_Board_of_Direct_Taxes_(Income_Tax)
+tree_IncomeTax.load('models/annoy/tree_IncomeTax.ann')
+
+tree_Labour = AnnoyIndex(embed_dim,'angular')    # Ministry_of_labour_and_Employment
+tree_Labour.load('models/annoy/tree_Labour.ann')
+
+tree_Finance = AnnoyIndex(embed_dim,'angular')   # Department_of_Financial_Services_(Banking_Division)
+tree_Finance.load('models/annoy/tree_Finance.ann')
+
+tree_Welfare = AnnoyIndex(embed_dim,'angular')   # Department_of_Ex_Servicemen_Welfare
+tree_Welfare.load('models/annoy/tree_Welfare.ann')
+
+tree_IndirectTax = AnnoyIndex(embed_dim,'angular') # Central_Board_of_Indirect_Taxes_and_Customs
+tree_IndirectTax.load('models/annoy/tree_IndirectTax.ann')
+
+
+classification_model = fasttext.load_model('models/fastText/fasttext_Without_Others.bin')
 
 def treeBuild(n = 20):
     tree_Telecom.build(n)
@@ -44,7 +57,22 @@ def treeUnbuild():
     tree_Welfare.unbuild()
     tree_IndirectTax.unbuild()
 
-treeBuild()
+def treeUnload():
+    tree_Telecom.unload()
+    tree_IncomeTax.unload()
+    tree_Labour.unload()
+    tree_Finance.unload()
+    tree_Welfare.unload()
+    tree_IndirectTax.unload()
+
+def saveAnnoyTrees():
+    os.remove('models/annoy/tree_Telecom.ann')
+    tree_Telecom.save('models/annoy/tree_Telecom.ann')
+    tree_IncomeTax.save('models/annoy/tree_IncomeTax.ann')
+    tree_Labour.save('models/annoy/tree_Labour.ann')
+    tree_Finance.save('models/annoy/tree_Finance.ann')
+    tree_Welfare.save('models/annoy/tree_Welfare.ann')
+    tree_IndirectTax.save('models/annoy/tree_IndirectTax.ann')
 
 def getKeywordList(KeywordsObject):
     keywordsList = []
@@ -142,8 +170,9 @@ def keywordExtractor():
         
 
 
-@app.route('/annoy/train', methods = ['POST'])
+@app.route('/annoy/addKeywords', methods = ['POST'])
 def annoyTrain():
+
     if request.method == 'POST':
 
         # [
@@ -190,6 +219,14 @@ def annoyTrain():
         
         
         treeBuild(20)
+
+        
+        tree_Telecom.save('models/annoy/tree_Telecom.ann')
+        tree_IncomeTax.save('models/annoy/tree_IncomeTax.ann')
+        tree_Labour.save('models/annoy/tree_Labour.ann')
+        tree_Finance.save('models/annoy/tree_Finance.ann')
+        tree_Welfare.save('models/annoy/tree_Welfare.ann')
+        tree_IndirectTax.save('models/annoy/tree_IndirectTax.ann')
         success = {
             "status":"success"
         }
@@ -198,6 +235,96 @@ def annoyTrain():
         response.data = json.dumps(success)
         response.status_code = 200
         return response
+
+@app.route('/annoy/retrain', methods = ['POST'])
+def annoyRetrain():
+
+    if request.method == 'POST':
+
+        # [
+        #     {
+        #     "keyword": "tax",
+        #     "department": "Central_Board_of_Direct_Taxes_(Income_Tax)",
+        #     "index": 10
+        #     },
+        #     {
+        #         "keyword": "refunds",
+        #         "department": "Central_Board_of_Direct_Taxes_(Income_Tax)",
+        #         "index": 11
+        #     }
+        # ]
+        
+
+        keyword_set_array = request.json
+
+        keyword_list = getKeywordList(keyword_set_array)
+
+        embedding_bert=BERT_model.encode(keyword_list)
+
+        tree_Finance_new = AnnoyIndex(embed_dim,"angular")
+        tree_IncomeTax_new = AnnoyIndex(embed_dim,"angular")
+        tree_Labour_new = AnnoyIndex(embed_dim,"angular")
+        tree_Welfare_new = AnnoyIndex(embed_dim,"angular")
+        tree_Telecom_new = AnnoyIndex(embed_dim,"angular")
+        tree_IndirectTax_new = AnnoyIndex(embed_dim,"angular")
+
+        for i in range(len(keyword_set_array)):
+            if(keyword_set_array[i]["department"]=="Department_of_Telecommunications"):
+                tree_Telecom_new.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+
+            elif(keyword_set_array[i]["department"]=="Central_Board_of_Direct_Taxes_(Income_Tax)"):
+                tree_IncomeTax_new.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+
+            elif(keyword_set_array[i]["department"]=="Ministry_of_labour_and_Employment"):
+                tree_Labour_new.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+
+            elif(keyword_set_array[i]["department"]=="Department_of_Financial_Services_(Banking_Division)"):
+                tree_Finance_new.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+
+            elif(keyword_set_array[i]["department"]=="Department_of_Ex_Servicemen_Welfare"):
+                tree_Welfare_new.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+
+            elif(keyword_set_array[i]["department"]=="Central_Board_of_Indirect_Taxes_and_Customs"):
+                tree_IndirectTax_new.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+        
+        tree_Telecom_new.build(20)
+        tree_IncomeTax_new.build(20)
+        tree_Labour_new.build(20)
+        tree_Finance_new.build(20)
+        tree_Welfare_new.build(20)
+        tree_IndirectTax_new.build(20)
+
+        global tree_Finance,tree_IncomeTax,tree_Labour,tree_Telecom,tree_Welfare,tree_IndirectTax
+        tree_Telecom.unload()
+        tree_IncomeTax.unload()
+        tree_Labour.unload()
+        tree_Finance.unload()
+        tree_Welfare.unload()
+        tree_IndirectTax.unload()
+
+        tree_Telecom = 0
+
+
+        tree_Finance = tree_Finance_new
+        tree_IncomeTax = tree_IncomeTax_new
+        tree_Labour = tree_Labour_new
+        tree_Telecom = tree_Telecom_new
+        tree_Welfare = tree_Welfare_new
+        tree_IndirectTax = tree_Finance_new
+
+        
+        success = {
+            "status":"success"
+        }
+        response = Response()
+        response.content_type = "application/json"
+        response.data = json.dumps(success)
+        response.status_code = 200
+        return response
+
+
+         
+        
 
 
 @app.route('/annoy/findIdentical', methods = ['POST'])
