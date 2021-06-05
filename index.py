@@ -262,22 +262,22 @@ def annoyRetrain():
 
         for i in range(len(keyword_set_array)):
             if(keyword_set_array[i]["department"]=="Department_of_Telecommunications"):
-                tree_Telecom_new.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+                tree_Telecom_new.add_item(int(keyword_set_array[i]["_id"]), embedding_bert[i])
 
             elif(keyword_set_array[i]["department"]=="Central_Board_of_Direct_Taxes_(Income_Tax)"):
-                tree_IncomeTax_new.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+                tree_IncomeTax_new.add_item(int(keyword_set_array[i]["_id"]), embedding_bert[i])
 
             elif(keyword_set_array[i]["department"]=="Ministry_of_labour_and_Employment"):
-                tree_Labour_new.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+                tree_Labour_new.add_item(int(keyword_set_array[i]["_id"]), embedding_bert[i])
 
             elif(keyword_set_array[i]["department"]=="Department_of_Financial_Services_(Banking_Division)"):
-                tree_Finance_new.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+                tree_Finance_new.add_item(int(keyword_set_array[i]["_id"]), embedding_bert[i])
 
             elif(keyword_set_array[i]["department"]=="Department_of_Ex_Servicemen_Welfare"):
-                tree_Welfare_new.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+                tree_Welfare_new.add_item(int(keyword_set_array[i]["_id"]), embedding_bert[i])
 
             elif(keyword_set_array[i]["department"]=="Central_Board_of_Indirect_Taxes_and_Customs"):
-                tree_IndirectTax_new.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
+                tree_IndirectTax_new.add_item(int(keyword_set_array[i]["_id"]), embedding_bert[i])
         
         tree_Telecom_new.build(20)
         tree_IncomeTax_new.build(20)
@@ -305,7 +305,7 @@ def annoyRetrain():
 
 
         success = {
-            "status":"success"
+            "success":True
         }
         response = Response()
         response.content_type = "application/json"
