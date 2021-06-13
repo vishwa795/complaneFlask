@@ -198,22 +198,22 @@ def annoyTrain():
         treeUnbuild()
 
         for i in range(len(keyword_set_array)):
-            if(keyword_set_array[i]["department"]=="Department_of_Telecommunications"):
+            if(keyword_set_array[i]["departmentName"]=="Department_of_Telecommunications"):
                 tree_Telecom.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
 
-            elif(keyword_set_array[i]["department"]=="Central_Board_of_Direct_Taxes_(Income_Tax)"):
+            elif(keyword_set_array[i]["departmentName"]=="Central_Board_of_Direct_Taxes_(Income_Tax)"):
                 tree_IncomeTax.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
 
-            elif(keyword_set_array[i]["department"]=="Ministry_of_labour_and_Employment"):
+            elif(keyword_set_array[i]["departmentName"]=="Ministry_of_labour_and_Employment"):
                 tree_Labour.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
 
-            elif(keyword_set_array[i]["department"]=="Department_of_Financial_Services_(Banking_Division)"):
+            elif(keyword_set_array[i]["departmentName"]=="Department_of_Financial_Services_(Banking_Division)"):
                 tree_Finance.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
 
-            elif(keyword_set_array[i]["department"]=="Department_of_Ex_Servicemen_Welfare"):
+            elif(keyword_set_array[i]["departmentName"]=="Department_of_Ex_Servicemen_Welfare"):
                 tree_Welfare.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
 
-            elif(keyword_set_array[i]["department"]=="Central_Board_of_Indirect_Taxes_and_Customs"):
+            elif(keyword_set_array[i]["departmentName"]=="Central_Board_of_Indirect_Taxes_and_Customs"):
                 tree_IndirectTax.add_item(int(keyword_set_array[i]["index"]), embedding_bert[i])
         
         
