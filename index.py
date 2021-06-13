@@ -117,6 +117,7 @@ def keywordExtractor():
     # }
     if request.method == 'POST':
         data = request.json
+        print(data)
         complaint = data['complaint']
 
         filename =str(uuid.uuid1())+".txt"
@@ -261,22 +262,22 @@ def annoyRetrain():
         tree_IndirectTax_new = AnnoyIndex(embed_dim,"angular")
 
         for i in range(len(keyword_set_array)):
-            if(keyword_set_array[i]["department"]=="Department_of_Telecommunications"):
+            if(keyword_set_array[i]["departmentName"]=="Department_of_Telecommunications"):
                 tree_Telecom_new.add_item(int(keyword_set_array[i]["_id"]), embedding_bert[i])
 
-            elif(keyword_set_array[i]["department"]=="Central_Board_of_Direct_Taxes_(Income_Tax)"):
+            elif(keyword_set_array[i]["departmentName"]=="Central_Board_of_Direct_Taxes_(Income_Tax)"):
                 tree_IncomeTax_new.add_item(int(keyword_set_array[i]["_id"]), embedding_bert[i])
 
-            elif(keyword_set_array[i]["department"]=="Ministry_of_labour_and_Employment"):
+            elif(keyword_set_array[i]["departmentName"]=="Ministry_of_labour_and_Employment"):
                 tree_Labour_new.add_item(int(keyword_set_array[i]["_id"]), embedding_bert[i])
 
-            elif(keyword_set_array[i]["department"]=="Department_of_Financial_Services_(Banking_Division)"):
+            elif(keyword_set_array[i]["departmentName"]=="Department_of_Financial_Services_(Banking_Division)"):
                 tree_Finance_new.add_item(int(keyword_set_array[i]["_id"]), embedding_bert[i])
 
-            elif(keyword_set_array[i]["department"]=="Department_of_Ex_Servicemen_Welfare"):
+            elif(keyword_set_array[i]["departmentName"]=="Department_of_Ex_Servicemen_Welfare"):
                 tree_Welfare_new.add_item(int(keyword_set_array[i]["_id"]), embedding_bert[i])
 
-            elif(keyword_set_array[i]["department"]=="Central_Board_of_Indirect_Taxes_and_Customs"):
+            elif(keyword_set_array[i]["departmentName"]=="Central_Board_of_Indirect_Taxes_and_Customs"):
                 tree_IndirectTax_new.add_item(int(keyword_set_array[i]["_id"]), embedding_bert[i])
         
         tree_Telecom_new.build(20)
