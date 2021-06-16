@@ -323,27 +323,27 @@ def annoyFindIdentical():
     if request.method == 'POST':
         # {
         #     "keyword": "tax"
-        #     "department": "Central_Board_of_Direct_Taxes_(Income_Tax)"
+        #     "departmentName": "Central_Board_of_Direct_Taxes_(Income_Tax)"
         # }
         keyword_map = request.json
         keytosearch = BERT_model.encode([keyword_map["keyword"]])
         relatedKeywordIndexes = []
-        if(keyword_map["department"]=="Department_of_Telecommunications"):
+        if(keyword_map["departmentName"]=="Department_of_Telecommunications"):
            relatedKeywordIndexes = tree_Telecom.get_nns_by_vector(keytosearch[0],10)
 
-        elif(keyword_map["department"]=="Central_Board_of_Direct_Taxes_(Income_Tax)"):
+        elif(keyword_map["departmentName"]=="Central_Board_of_Direct_Taxes_(Income_Tax)"):
             relatedKeywordIndexes = tree_IncomeTax.get_nns_by_vector(keytosearch[0],10)
 
-        elif(keyword_map["department"]=="Ministry_of_labour_and_Employment"):
+        elif(keyword_map["departmentName"]=="Ministry_of_labour_and_Employment"):
             relatedKeywordIndexes = tree_Labour.get_nns_by_vector(keytosearch[0],10)
 
-        elif(keyword_map["department"]=="Department_of_Financial_Services_(Banking_Division)"):
+        elif(keyword_map["departmentName"]=="Department_of_Financial_Services_(Banking_Division)"):
             relatedKeywordIndexes = tree_Finance.get_nns_by_vector(keytosearch[0],10)
 
-        elif(keyword_map["department"]=="Department_of_Ex_Servicemen_Welfare"):
+        elif(keyword_map["departmentName"]=="Department_of_Ex_Servicemen_Welfare"):
             relatedKeywordIndexes = tree_Welfare.get_nns_by_vector(keytosearch[0],10)
             
-        elif(keyword_map["department"]=="Central_Board_of_Indirect_Taxes_and_Customs"):
+        elif(keyword_map["departmentName"]=="Central_Board_of_Indirect_Taxes_and_Customs"):
             relatedKeywordIndexes = tree_IndirectTax.get_nns_by_vector(keytosearch[0],10)
         
         return json.dumps(relatedKeywordIndexes)
