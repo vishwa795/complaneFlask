@@ -1,0 +1,2 @@
+stopwords
+universal_tagset

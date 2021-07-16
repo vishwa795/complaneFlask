@@ -1,3 +1,4 @@
+-f https://download.pytorch.org/whl/torch_stable.html
 annoy==1.17.0
 blis==0.7.4
 catalogue==2.0.4
