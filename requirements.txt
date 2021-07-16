@@ -49,7 +49,7 @@ stanza==1.2
 thinc==8.0.3
 threadpoolctl==2.1.0
 tokenizers==0.10.2
-torch==1.8.1
+torch==1.8.1+cpu
 tqdm==4.60.0
 transformers==4.5.1
 typer==0.3.2
